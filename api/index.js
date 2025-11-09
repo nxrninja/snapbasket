@@ -6,6 +6,7 @@ import app from "../backend/server.js";
 import { Catogery } from "../backend/src/Models/catogery.model.js";
 import userRoutes from '../backend/src/Routes/user.Route.js';
 import adminRoutes from '../backend/src/Routes/admin.router.js';
+import mongoose from 'mongoose';
 import { dbConnect } from '../backend/src/Configs/DbConnect.js';
 
 // Ensure database is connected on each request (serverless cold starts)
@@ -13,6 +14,7 @@ app.use(async (req, res, next) => {
     try {
         // Try to connect if not connected
         if (mongoose.connection.readyState !== 1) {
+            console.log('Database not connected, attempting to connect...');
             await dbConnect();
         }
     } catch (error) {
