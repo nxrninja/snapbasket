@@ -1,7 +1,17 @@
-const NodeEnv = 'productions'
+// Use environment variable for API URL, fallback to localhost for development
+const getApiUrl = () => {
+  // Check for Vercel environment variable first
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Check for Node environment
+  if (import.meta.env.MODE === 'production' || import.meta.env.PROD) {
+    return 'https://api-snapbasket.cloudcoderhub.in/api/user';
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:8443/api/user';
+};
 
-const localhostURl = 'http://localhost:8443/api/user'
-
-const DeploymentUrl = 'https://api-snapbasket.cloudcoderhub.in/api/user'
-
-export const BaseUrl = NodeEnv === 'production' ? DeploymentUrl : localhostURl
+export const BaseUrl = getApiUrl();
