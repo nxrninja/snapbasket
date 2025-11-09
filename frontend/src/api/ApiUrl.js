@@ -5,19 +5,29 @@ const getApiUrl = () => {
     return import.meta.env.VITE_API_URL;
   }
   
-  // For development mode, always use localhost
-  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+  // Check if we're running on Vercel (production deployment)
+  // Vercel sets VERCEL=1 and VERCEL_ENV environment variables
+  const isVercel = typeof window !== 'undefined' && 
+    (window.location.hostname.includes('vercel.app') || 
+     window.location.hostname.includes('vercel.com'));
+  
+  // For development mode (localhost), always use localhost backend
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || 
+     window.location.hostname === '127.0.0.1');
+  
+  if (isLocalhost) {
     return 'http://localhost:8443/api/user';
   }
   
   // For production on Vercel: use relative path since backend is on same domain
-  // Frontend and backend are both on Vercel, so we can use relative URLs
-  if (import.meta.env.MODE === 'production' || import.meta.env.PROD) {
+  // This works because both frontend and backend are deployed on the same Vercel domain
+  if (isVercel || import.meta.env.MODE === 'production' || import.meta.env.PROD) {
     return '/api/user';
   }
   
-  // Default fallback to localhost
-  return 'http://localhost:8443/api/user';
+  // Default: use relative path (will work for same-domain deployments)
+  return '/api/user';
 };
 
 export const BaseUrl = getApiUrl();
