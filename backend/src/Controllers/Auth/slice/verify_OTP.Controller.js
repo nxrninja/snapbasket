@@ -1,6 +1,7 @@
 import { OtpValidate } from "../../../Models/otpValidator.model.js"
 import { User } from "../../../Models/user.model.js"
 import { Queue } from "bullmq"
+import IORedis from 'ioredis'
 import { body, validationResult } from "express-validator"
 import { Tempuser } from "../../../Models/tempUser.Model.js"
 
@@ -56,18 +57,38 @@ const verifyOtp = async (req, res) => {
 
         await Tempuser.deleteOne({ email: email });
 
-        const queue = new Queue("welcomeMessage")
+        // Try to queue welcome message (non-blocking, won't fail if Redis unavailable)
+        try {
+            const redisHost = process.env.REDIS_HOST || 'localhost';
+            const redisPort = parseInt(process.env.REDIS_PORT || '6379');
+            
+            const connection = new IORedis({
+                maxRetriesPerRequest: null,
+                host: redisHost,
+                port: redisPort,
+                enableOfflineQueue: false,
+                retryStrategy: () => null, // Don't retry if connection fails
+            });
 
-        const queuedata = {
-            fullname: findusertempdata.fullname,
-            email: findusertempdata.email
+            connection.on('error', () => {
+                // Silently fail - welcome email is not critical
+            });
+
+            const queue = new Queue("welcomeMessage", { connection });
+
+            const queuedata = {
+                fullname: findusertempdata.fullname,
+                email: findusertempdata.email
+            }
+
+            // Fire and forget - don't wait for queue
+            queue.add("welcomeMessage", { data: queuedata }).catch((err) => {
+                console.warn('Failed to queue welcome message:', err.message);
+            });
+        } catch (error) {
+            // Redis unavailable - log but don't fail registration
+            console.warn('Welcome message queue unavailable:', error.message);
         }
-
-        const welcomemessagejob = async () => {
-            await queue.add("welcomeMessage", { data: queuedata })
-        }
-
-        welcomemessagejob()
 
 
 

@@ -19,11 +19,27 @@ const emailTemplate = fs.readFileSync(filePath, 'utf-8');
 const compiledTemplate = handlebars.compile(emailTemplate);
 
 
-const connection = new IORedis({
-    maxRetriesPerRequest: null,
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
-});
+// Redis connection with error handling
+let connection = null;
+try {
+    connection = new IORedis({
+        maxRetriesPerRequest: null,
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        retryStrategy: (times) => {
+            const delay = Math.min(times * 50, 3000);
+            return delay;
+        },
+        enableOfflineQueue: false,
+    });
+
+    connection.on('error', (err) => {
+        console.warn('Worker Redis connection error:', err.message);
+    });
+} catch (error) {
+    console.error('Failed to create Redis connection for worker:', error.message);
+    process.exit(1); // Worker needs Redis, so exit if unavailable
+}
 
 
 const transporter = nodemailer.createTransport({
