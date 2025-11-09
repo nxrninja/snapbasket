@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prestart": "npm run build",
+    "prestart": "npm run build || echo 'Build failed, continuing anyway...'",
     "start": "node index.js",
     "worker": "node service.js",
-    "build": "npm install --prefix frontend && npm run build --prefix frontend",
+    "build": "cd frontend && npm install && npm run build",
     "dev": "node index.js"
   },
   "author": "",
