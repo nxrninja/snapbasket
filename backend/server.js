@@ -41,7 +41,11 @@ const app = express();
 
 
 // use security-related middleware
-app.use(helmet());
+// Configure helmet to allow manifest files
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Disable CSP for now to avoid blocking
+}));
 app.use(hpp());
 
 

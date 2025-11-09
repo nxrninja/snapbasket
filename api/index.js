@@ -14,12 +14,19 @@ app.use(async (req, res, next) => {
     try {
         // Try to connect if not connected
         if (mongoose.connection.readyState !== 1) {
-            console.log('Database not connected, attempting to connect...');
+            console.log('[DB] Not connected, attempting to connect...');
+            console.log('[DB] NODE_ENV:', process.env.NODE_ENV);
+            console.log('[DB] PRODUCTION_DB_URI exists:', !!process.env.PRODUCTION_DB_URI);
             await dbConnect();
+            console.log('[DB] Connection successful');
+        } else {
+            console.log('[DB] Already connected, state:', mongoose.connection.readyState);
         }
     } catch (error) {
-        console.error('Database connection error:', error.message);
+        console.error('[DB] Connection error:', error.message);
+        console.error('[DB] Full error:', error);
         // Continue anyway - some routes might not need DB
+        // But log the error for debugging
     }
     next();
 });
