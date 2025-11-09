@@ -1,5 +1,18 @@
 # Vercel Deployment Guide
 
+## ⚠️ IMPORTANT: Root Directory Configuration
+
+**Before deploying, you MUST configure the Root Directory in Vercel:**
+
+1. Go to your project in Vercel dashboard
+2. Click on **Settings** → **General**
+3. Scroll down to **Root Directory**
+4. Click **Edit**
+5. Set Root Directory to: `frontend`
+6. Click **Save**
+
+This tells Vercel to use the `frontend` folder as the project root.
+
 ## Environment Variables to Add in Vercel
 
 After importing your project to Vercel, add these environment variables in the Vercel project settings:
