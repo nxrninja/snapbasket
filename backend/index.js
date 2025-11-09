@@ -3,6 +3,7 @@ import { Catogery } from "./src/Models/catogery.model.js";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import { existsSync } from "fs";
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -31,7 +32,6 @@ app.use('/api/admin' , adminRoutes )
 
 // Serve static files from frontend/dist (if it exists)
 const frontendDistPath = path.join(__dirname, 'frontend', 'dist');
-import { existsSync } from 'fs';
 
 if (existsSync(frontendDistPath)) {
     console.log(`Serving frontend from: ${frontendDistPath}`);
