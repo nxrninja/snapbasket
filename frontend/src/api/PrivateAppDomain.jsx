@@ -1,14 +1,31 @@
-// Use environment variable for private app domain, fallback to localhost for development
+// Private app domain configuration for redirects
 const getPrivateAppDomain = () => {
-  // Check for Vercel environment variable first
+  // Use environment variable if explicitly set (highest priority)
   if (import.meta.env.VITE_PRIVATE_APP_DOMAIN) {
     return import.meta.env.VITE_PRIVATE_APP_DOMAIN;
   }
   
-  // Check for Node environment
+  // Check if we're running in browser
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    const isVercel = hostname.includes('vercel.app') || hostname.includes('vercel.com');
+    
+    // Development: use localhost
+    if (isLocalhost) {
+      return 'http://localhost:5175';
+    }
+    
+    // Production on Vercel: use current domain
+    if (isVercel) {
+      return window.location.origin; // Use current Vercel URL
+    }
+  }
+  
+  // Check for production mode
   if (import.meta.env.MODE === 'production' || import.meta.env.PROD) {
-    // Use the same domain as the API for production
-    return 'https://snapbasket.cloudcoderhub.in';
+    // Use the deployed Vercel URL for production
+    return 'https://snapbasket-102.vercel.app';
   }
   
   // Default to localhost for development
