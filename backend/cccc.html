@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DevLoad Upload</title>
+  <script src="https://api-devload.cloudcoderhub.in/devload.js"></script>
+</head>
+<body>
+  <h2>Upload File</h2>
+  <input type="file" id="fileInput" />
+  <button onclick="uploadFile()">Upload</button>
+  <p id="status"></p>
+
+  <script>
+    const devload = new DevLoad('8a89f797e1c03a2269c863fc361c8041');
+    const projectid = '910160cc55a146de0f6701802f8e8caa';
+
+    async function uploadFile() {
+      const file = document.getElementById('fileInput').files[0];
+      const status = document.getElementById('status');
+      if (!file) {
+        status.textContent = 'No file selected!';
+        return;
+      }
+
+      try {
+        status.textContent = 'Uploading...';
+        const response = await devload.uploadFile(projectid, file);
+        console.log(response);
+        status.textContent = 'Upload successful!';
+      } catch (error) {
+        console.error(error);
+        status.textContent = 'Error during upload!';
+      }
+    }
+  </script>
+</body>
+</html>

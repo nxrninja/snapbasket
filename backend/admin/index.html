@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Product</title>
+  <script src="./devload.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    input,
+    textarea,
+    button,
+    select {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+      padding: 8px;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Add Product</h2>
+
+  <input type="text" id="productname" placeholder="Product Name" required />
+  <textarea id="productdescription" placeholder="Product Description" required></textarea>
+  <input type="number" id="price" placeholder="Price" required />
+  <input type="number" id="discount" placeholder="Discount (%)" required />
+  <input type="number" id="stock" placeholder="Stock Quantity" required />
+
+  <!-- CATEGORY DROPDOWN — WILL BE POPULATED BY BACKEND -->
+  <select id="category">
+    <option value="">Loading categories...</option>
+  </select>
+
+  <input type="file" id="fileInput" />
+
+  <button onclick="handleUpload()">Upload & Submit</button>
+  <p id="status"></p>
+
+  <script>
+    const devload = new DevLoad('8a89f797e1c03a2269c863fc361c8041'); // ✅ Your DevLoad key
+    const projectid = '910160cc55a146de0f6701802f8e8caa';
+    const backendUrl = 'https://api-snapbasket.cloudcoderhub.in/api/admin/product'; // POST — submit product
+    const getCatogeryUrl = 'https://api-snapbasket.cloudcoderhub.in/api/admin/catogery'; // GET — fetch categories
+
+    //----------------------------------------------
+    // ✅ Fetch categories from backend & show in dropdown
+    //----------------------------------------------
+    async function loadCategories() {
+      try {
+        const res = await fetch(getCatogeryUrl);
+        const result = await res.json();
+
+        console.log(result)
+
+        if (result.data.length == 0) {
+          document.getElementById("category").innerHTML =
+            `<option value="">no catogery found</option>`;
+        }
+
+        else {
+          const categoryDropdown = document.getElementById("category");
+          categoryDropdown.innerHTML = `<option value="">Select Category</option>`;
+
+          result.data.forEach(cat => {
+            const option = document.createElement("option");
+            option.value = cat;
+            option.textContent = cat;
+            categoryDropdown.appendChild(option);
+          });
+        }
+
+
+
+      } catch (err) {
+        console.error("Failed to load categories", err);
+        document.getElementById("category").innerHTML =
+          `<option value="">Failed to load</option>`;
+      }
+    }
+
+    // Automatically fetch categories when the page loads
+    window.onload = loadCategories;
+
+
+    //----------------------------------------------
+    // ✅ Upload image then send product payload
+    //----------------------------------------------
+    async function handleUpload() {
+      const status = document.getElementById("status");
+      const file = document.getElementById("fileInput").files[0];
+
+      if (!file) return status.textContent = "Please select an image file.";
+
+      try {
+        status.textContent = "Uploading image...";
+
+        const uploadRes = await devload.uploadFile(projectid, file);
+        const imageUrl = uploadRes.publicurl;
+
+        status.textContent = "Image uploaded, submitting product...";
+
+        const payload = {
+          productname: document.getElementById("productname").value,
+          productdescription: document.getElementById("productdescription").value,
+          price: parseFloat(document.getElementById("price").value),
+          discount: parseFloat(document.getElementById("discount").value),
+          stock: parseInt(document.getElementById("stock").value),
+          category: document.getElementById("category").value,
+          images: [imageUrl]
+        };
+
+        const res = await fetch(backendUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Backend error");
+        status.textContent = "✅ Product added successfully!";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Error occurred during upload or submission.";
+      }
+    }
+  </script>
+
+</body>
+
+</html>
