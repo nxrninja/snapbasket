@@ -24,12 +24,12 @@ import { dbConnect} from './src/Configs/DbConnect.js'
 
 
 // Connection with database - handle errors gracefully for serverless
-try {
-    await dbConnect();
-} catch (error) {
+// Don't await - let it connect in background so server can start immediately
+dbConnect().catch((error) => {
     console.error("Failed to connect to database on startup:", error.message);
+    console.log("Server will start anyway. Database will retry on first request.");
     // Don't exit - allow the app to start and retry on first request
-}
+});
 
 // import other 
 import cors from "cors";
