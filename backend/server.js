@@ -23,8 +23,13 @@ configDotenv();
 import { dbConnect} from './src/Configs/DbConnect.js'
 
 
-// Connection with database
-await dbConnect();
+// Connection with database - handle errors gracefully for serverless
+try {
+    await dbConnect();
+} catch (error) {
+    console.error("Failed to connect to database on startup:", error.message);
+    // Don't exit - allow the app to start and retry on first request
+}
 
 // import other 
 import cors from "cors";

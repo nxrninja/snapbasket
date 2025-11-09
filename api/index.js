@@ -1,12 +1,26 @@
 // Vercel serverless function - Backend API handler
 // This file handles all /api/* routes
 // IMPORTANT: Vercel routes /api/* to this function
-// The request path that Express receives includes /api, so we need to handle both patterns
 
 import app from "../backend/server.js";
 import { Catogery } from "../backend/src/Models/catogery.model.js";
 import userRoutes from '../backend/src/Routes/user.Route.js';
 import adminRoutes from '../backend/src/Routes/admin.router.js';
+import { dbConnect } from '../backend/src/Configs/DbConnect.js';
+
+// Ensure database is connected on each request (serverless cold starts)
+app.use(async (req, res, next) => {
+    try {
+        // Try to connect if not connected
+        if (mongoose.connection.readyState !== 1) {
+            await dbConnect();
+        }
+    } catch (error) {
+        console.error('Database connection error:', error.message);
+        // Continue anyway - some routes might not need DB
+    }
+    next();
+});
 
 // Debug middleware to log requests
 app.use((req, res, next) => {
