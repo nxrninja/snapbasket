@@ -4,11 +4,31 @@ const corsLocally = {
     credentials: true,
 }
 
-const corsProduction = {
-    origin: [
+// CORS origin function to allow specific origins and all Vercel deployments
+const corsOriginFunction = (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
         'https://snapbasket.cloudcoderhub.in',
-        'https://*.vercel.app',  // Allow all Vercel deployments (preview and production)
-    ],
+    ];
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+    }
+    
+    // Allow all Vercel deployments (*.vercel.app)
+    if (origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+    }
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+};
+
+const corsProduction = {
+    origin: corsOriginFunction,
     methods: ['POST' , 'PUT' , 'GET' , "DELETE" , "OPTIONS"],
     credentials: true,
 }

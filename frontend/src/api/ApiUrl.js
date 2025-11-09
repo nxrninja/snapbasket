@@ -1,6 +1,6 @@
-// Use environment variable for API URL, fallback to localhost for development
+// Use environment variable for API URL, fallback to relative path for same-domain deployment
 const getApiUrl = () => {
-  // Always check for environment variable first (for Vercel or custom deployments)
+  // Always check for environment variable first (override if needed)
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
@@ -10,12 +10,10 @@ const getApiUrl = () => {
     return 'http://localhost:8443/api/user';
   }
   
-  // For production builds, use the production API URL
-  // NOTE: Make sure this domain actually exists and is accessible!
-  // If your backend is deployed elsewhere, update this URL or set VITE_API_URL in Vercel
+  // For production on Vercel: use relative path since backend is on same domain
+  // Frontend and backend are both on Vercel, so we can use relative URLs
   if (import.meta.env.MODE === 'production' || import.meta.env.PROD) {
-    // Update this to your actual backend URL, or set VITE_API_URL in Vercel environment variables
-    return 'https://api-snapbasket.cloudcoderhub.in/api/user';
+    return '/api/user';
   }
   
   // Default fallback to localhost
