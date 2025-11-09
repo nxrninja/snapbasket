@@ -5,7 +5,10 @@ const corsLocally = {
 }
 
 const corsProduction = {
-    origin: 'https://snapbasket.cloudcoderhub.in',
+    origin: [
+        'https://snapbasket.cloudcoderhub.in',
+        'https://*.vercel.app',  // Allow all Vercel deployments (preview and production)
+    ],
     methods: ['POST' , 'PUT' , 'GET' , "DELETE" , "OPTIONS"],
     credentials: true,
 }
