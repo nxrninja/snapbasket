@@ -13,6 +13,15 @@ const __dirname = path.dirname(__filename);
 import userRoutes from './src/Routes/user.Route.js';
 import adminRoutes from './src/Routes/admin.router.js'
 
+// Health check endpoint (must be before other routes)
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'ok', 
+        message: 'Server is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Routes
 app.use('/api/user', userRoutes);
 app.post('/api/admin/catogery' , async (req , res) => {
@@ -70,10 +79,37 @@ if (existsSync(frontendDistPath)) {
 // Use PORT from environment (Sevalla provides this, defaults to 8443 for local)
 const PORT = process.env.PORT || 8443;
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Server is running on port ${PORT}`);
-    console.log(`🌐 Listening on: 0.0.0.0:${PORT}`);
-    if (existsSync(frontendDistPath)) {
-        console.log(`📦 Frontend served from: ${frontendDistPath}`);
-    }
+// Error handlers
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // Don't exit - let the server try to continue
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit - let the server try to continue
+});
+
+// Start server with error handling
+try {
+    const server = app.listen(PORT, '0.0.0.0', () => {
+        console.log(`✅ Server is running on port ${PORT}`);
+        console.log(`🌐 Listening on: 0.0.0.0:${PORT}`);
+        console.log(`🔗 Health check: http://0.0.0.0:${PORT}/health`);
+        if (existsSync(frontendDistPath)) {
+            console.log(`📦 Frontend served from: ${frontendDistPath}`);
+        } else {
+            console.log(`⚠️  Frontend dist not found, API only mode`);
+        }
+    });
+
+    server.on('error', (error) => {
+        console.error('Server error:', error);
+        if (error.code === 'EADDRINUSE') {
+            console.error(`Port ${PORT} is already in use`);
+        }
+    });
+} catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+}
