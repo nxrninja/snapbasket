@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "install:frontend": "cd frontend && npm install",
-    "build:frontend": "cd frontend && npm run build",
-    "install:backend": "cd backend && npm install",
-    "install:all": "cd frontend && npm install && cd ../backend && npm install"
+    "install": "npm install --prefix frontend && npm install --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "install:frontend": "npm install --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend",
+    "install:backend": "npm install --prefix backend",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
   }
 }
 
