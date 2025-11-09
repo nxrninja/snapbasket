@@ -1,8 +1,8 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "npm run install",
+  "outputDirectory": "backend/frontend/dist",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/api/(.*)",
