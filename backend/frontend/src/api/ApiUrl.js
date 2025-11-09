@@ -16,8 +16,13 @@ const getApiUrl = () => {
       return 'http://localhost:8443/api/user';
     }
     
-    // Production on Vercel: use relative path (backend is on same domain via /api routes)
+    // Production: use relative path (backend is on same domain)
     if (isVercel || import.meta.env.PROD || import.meta.env.MODE === 'production') {
+      return '/api/user';
+    }
+    
+    // For other production deployments (like Seva), use relative path
+    if (!isLocalhost) {
       return '/api/user';
     }
   }
